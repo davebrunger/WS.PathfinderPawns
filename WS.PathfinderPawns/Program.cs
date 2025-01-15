@@ -2,23 +2,30 @@
 
 var command = new RootCommand("Application to generate a PDF file containing Pathfinder pawns");
 
-var imageFileOption = new Option<FileInfo>("--image-file", "Path to image file");
+var imageFileOption = new Option<FileInfo[]>("--image-file", "Path to image file");
 imageFileOption.AddAlias("-i");
 imageFileOption.IsRequired = true;
 imageFileOption.AddValidator(result =>
 {
-    if (!File.Exists(result.GetValueForOption(imageFileOption)!.FullName))
+    var files = result.GetValueForOption(imageFileOption)!;
+
+    foreach (var file in files)
     {
-        result.ErrorMessage = $"Image file '{result.GetValueForOption(imageFileOption)}' does not exist.";
-        return;
-    }
-    try
-    {
-        using var image = XImage.FromFile(result.GetValueForOption(imageFileOption)!.FullName);
-    }
-    catch (InvalidOperationException)
-    {
-        result.ErrorMessage = $"Image file '{result.GetValueForOption(imageFileOption)}' is not a valid image file (BMP, PNG, GIF, JPEG, TIFF or PDF).";
+        if (!File.Exists(file.FullName))
+        {
+            result.ErrorMessage = $"Image file '{file}' does not exist.";
+            return;
+        }
+
+        try
+        {
+            using var image = XImage.FromFile(file.FullName);
+        }
+        catch (InvalidOperationException)
+        {
+            result.ErrorMessage =
+                $"Image file '{file}' is not a valid image file (BMP, PNG, GIF, JPEG, TIFF or PDF).";
+        }
     }
 });
 

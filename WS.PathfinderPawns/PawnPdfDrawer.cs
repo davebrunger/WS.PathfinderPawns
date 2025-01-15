@@ -2,19 +2,21 @@ namespace WS.PathfinderPawns;
 
 public static class PawnPdfDrawer
 {
-    public static void DrawPawnPdf(FileInfo imageFile, FileInfo outputFile, PageSize paperSize, PawnSize pawnSize)
+    public static void DrawPawnPdf(FileInfo[] imageFiles, FileInfo outputFile, PageSize paperSize, PawnSize pawnSize)
     {
         using var document = new PdfDocument();
         var page = document.AddPage();
         page.Size = paperSize;
         page.Orientation = PageOrientation.Portrait;
-        using var image = XImage.FromFile(imageFile.FullName);
-        DrawPawGrid(page, pawnSize, image);
+        XImage.FromFile(imageFiles[0].FullName);
+        PawnGridDrawer.DrawPawnGrid(page, pawnSize, (index, total) =>
+        {
+            var imagesPerFile = total / imageFiles.Length;
+            var image = index / imagesPerFile;
+            image = image >= imageFiles.Length ? imageFiles.Length - 1 : image;
+            return XImage.FromFile(imageFiles[image].FullName);
+        });
         document.Save(outputFile.FullName);
     }
-    
-    private static void DrawPawGrid(PdfPage page, PawnSize pawnSize, XImage image)
-    {
-        PawnGridDrawer.DrawPawnGrid(page, pawnSize, _ => image);
-    }
+   
 }

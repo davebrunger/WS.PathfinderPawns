@@ -2,7 +2,9 @@ namespace WS.PathfinderPawns;
 
 public static class PawnGridDrawer
 {
-    public static void DrawPawnGrid(PdfPage page, PawnSize size, Func<(int X, int Y), XImage> getImage, int pageBorderMm = 25, int minMarginMm = 10)
+    public delegate XImage GetImage(int index, int total);
+    
+    public static void DrawPawnGrid(PdfPage page, PawnSize size, GetImage getImage, int pageBorderMm = 25, int minMarginMm = 10)
     {
         using var gfx = XGraphics.FromPdfPage(page);
 
@@ -26,7 +28,7 @@ public static class PawnGridDrawer
             {
                 var xPt = pageBorderPt + i * (pawnWidthPt + columnMarginPt);
                 var yPt = pageBorderPt + j * (pawnHeightPt + rowMarginPt);
-                PawnDrawer.DrawPawn(gfx, xPt, yPt, size, getImage((i, j)));    
+                PawnDrawer.DrawPawn(gfx, xPt, yPt, size, getImage(j * columns + i, rows * columns));    
             }
         }
     }
