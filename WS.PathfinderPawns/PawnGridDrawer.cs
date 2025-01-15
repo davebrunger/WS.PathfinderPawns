@@ -3,8 +3,9 @@ namespace WS.PathfinderPawns;
 public static class PawnGridDrawer
 {
     public delegate XImage GetImage(int index, int total);
+    public delegate XColor? GetDotColour(int index, int total);
     
-    public static void DrawPawnGrid(PdfPage page, PawnSize size, GetImage getImage, int pageBorderMm = 25, int minMarginMm = 10)
+    public static void DrawPawnGrid(PdfPage page, PawnSize size, GetImage getImage, GetDotColour getDotColour, int pageBorderMm = 25, int minMarginMm = 10)
     {
         using var gfx = XGraphics.FromPdfPage(page);
 
@@ -22,13 +23,20 @@ public static class PawnGridDrawer
         var columnMarginPt = (pageWidthPt - 2 * pageBorderPt - pawnWidthPt) / (columns - 1) - pawnWidthPt;
         var rowMarginPt = (pageHeightPt - 2 * pageBorderPt - pawnHeightPt) / (rows - 1) - pawnHeightPt;
 
+        var total = rows * columns;
+
         for (var j = 0; j < rows; j++)
         {
             for (var i = 0; i < columns; i++)
             {
                 var xPt = pageBorderPt + i * (pawnWidthPt + columnMarginPt);
                 var yPt = pageBorderPt + j * (pawnHeightPt + rowMarginPt);
-                PawnDrawer.DrawPawn(gfx, xPt, yPt, size, getImage(j * columns + i, rows * columns));    
+                
+                var index = j * columns + i;
+                
+                var dotColor = getImage(index, total);
+                
+                PawnDrawer.DrawPawn(gfx, xPt, yPt, size, getImage(index, total), getDotColour(index, total));    
             }
         }
     }

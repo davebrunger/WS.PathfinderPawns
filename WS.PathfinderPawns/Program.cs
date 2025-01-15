@@ -2,7 +2,7 @@
 
 var command = new RootCommand("Application to generate a PDF file containing Pathfinder pawns");
 
-var imageFileOption = new Option<FileInfo[]>("--image-file", "Path to image file");
+var imageFileOption = new Option<FileInfo[]>("--image-file", "Path to image file (Can be specified multiple times)");
 imageFileOption.AddAlias("-i");
 imageFileOption.IsRequired = true;
 imageFileOption.AddValidator(result =>
@@ -38,11 +38,15 @@ paperSizeOption.AddAlias("-p");
 var pawnSizeOption = new Option<PawnSize>("--pawn-size", () => PawnSize.Medium, "Size of pawns to generate");
 pawnSizeOption.AddAlias("-s");
 
+var drawDotsOption = new Option<bool>("--draw-dots", () => true, "Draw coloured Dots on pawns");
+drawDotsOption.AddAlias("-d");
+
 command.AddOption(imageFileOption);
 command.AddOption(outputFileOption);
 command.AddOption(paperSizeOption);
 command.AddOption(pawnSizeOption);
+command.AddOption(drawDotsOption);
 
-command.SetHandler(PawnPdfDrawer.DrawPawnPdf, imageFileOption, outputFileOption, paperSizeOption, pawnSizeOption);
+command.SetHandler(PawnPdfDrawer.DrawPawnPdf, imageFileOption, outputFileOption, paperSizeOption, pawnSizeOption, drawDotsOption);
 
 return await command.InvokeAsync(args);
