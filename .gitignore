@@ -400,3 +400,8 @@ FodyWeavers.xsd
 *.sln.iml
 .idea/
 
+# Output PDF files
+*.pdf
+
+# Mac OS Files
+.DS_Store
